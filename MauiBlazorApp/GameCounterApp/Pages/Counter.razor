@@ -1,0 +1,72 @@
+﻿@page "/"
+
+<div class="mt-2">
+    <h4 class="mb-3">Player-Score</h4>
+    <button class="btn btn-primary" @onclick="AddPlayer">Add Player</button>
+    <button class="btn btn-primary" @onclick="UpdateTotalScore">Update</button>
+    <hr/>
+
+    @foreach (var playerEntry in playerEntries)
+    {
+        <div class="mb-2 mt-2">
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar" style="width: @GetProgressBarWidth(playerEntry.TotalScore); font-size: 1.2rem;" aria-valuenow="@playerEntry.TotalScore" aria-valuemin="0" aria-valuemax="@maxScore">
+                    @playerEntry.TotalScore
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-4">
+            <input type="text" class="form-control" placeholder="Enter Name" @bind="playerEntry.Name" />
+            <p class="d-flex align-items-center mb-0">#@playerEntry.Rank</p>
+            <input type="number" class="form-control" style="width: 7rem;" placeholder="" @bind="playerEntry.InputScore" />
+        </div>
+        <hr class="m-3"/>
+    }
+</div>
+
+@code {
+    public class PlayerEntry
+    {
+        public string Name { get; set; }  
+        public int TotalScore { get; set; } 
+        public string InputScore { get; set; } 
+        public int Rank { get; set; }
+
+        public PlayerEntry()
+        {
+            this.Name = "";
+            this.TotalScore = 0;
+            this.InputScore = "";
+            this.Rank = 1;
+        }
+    }
+
+    private List<PlayerEntry> playerEntries = new List<PlayerEntry>();
+    private int maxScore = 0;
+
+    private void AddPlayer()
+    {
+        playerEntries.Add(new PlayerEntry());
+    }
+
+    private void UpdateTotalScore()
+    {
+        var orderedPlayerEntries = playerEntries.OrderBy(x => x.TotalScore + (x.InputScore == "" ?  0 : int.Parse(x.InputScore)));
+        int rank = 1;
+        foreach (var entry in orderedPlayerEntries)
+        {
+            entry.TotalScore += entry.InputScore == "" ? 0 : int.Parse(entry.InputScore);
+            entry.InputScore = "";
+            entry.Rank = rank;
+            rank++;
+        }
+
+        maxScore = playerEntries.Count > 0 ? playerEntries.Max(p => p.TotalScore) : 0;
+    }
+
+    private string GetProgressBarWidth(int score)
+    {
+        if (maxScore == 0) return "0%"; 
+        return (score * 100 / maxScore) + "%";
+    }
+}
