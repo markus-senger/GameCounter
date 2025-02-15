@@ -11,7 +11,7 @@
     {
         <div class="mb-2 mt-2">
             <div class="progress" style="height: 30px;">
-                <div class="progress-bar" style="width: @GetProgressBarWidth(playerEntry.TotalScore); font-size: 1.2rem;" aria-valuenow="@playerEntry.TotalScore" aria-valuemin="0" aria-valuemax="@maxScore">
+                <div class="progress-bar" style="width: @GetProgressBarWidth(playerEntry.DisplayScore); font-size: 1.2rem;" aria-valuenow="@playerEntry.TotalScore" aria-valuemin="0" aria-valuemax="@maxScore">
                     @playerEntry.TotalScore
                 </div>
             </div>
@@ -30,6 +30,7 @@
     {
         public string Name { get; set; }  
         public int TotalScore { get; set; } 
+        public int DisplayScore { get; set; }
         public string InputScore { get; set; } 
         public int Rank { get; set; }
 
@@ -61,12 +62,13 @@
             foreach (var entry in orderedPlayerEntries)
             {
                 entry.TotalScore += entry.InputScore == "" ? 0 : int.Parse(entry.InputScore);
+                entry.DisplayScore = entry.TotalScore <= 0 ? 0 : entry.TotalScore;
                 entry.InputScore = "";
                 entry.Rank = rank;
                 rank++;
             }
 
-            maxScore = playerEntries.Count > 0 ? playerEntries.Max(p => p.TotalScore) : 0;
+            maxScore = playerEntries.Count > 0 ? playerEntries.Max(p => p.DisplayScore) : 0;
         }
         catch
         {
